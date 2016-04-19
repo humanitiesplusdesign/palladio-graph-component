@@ -66,7 +66,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				var search = "";
 
 				var width = element.width() || 1000,
-					height = scope.graphHeight ? scope.graphHeight.slice(0, scope.graphHeight.length-2) : element.height() || 800;
+					height = scope.graphHeight && scope.graphHeight.indexOf("%") === -1 ? scope.graphHeight.slice(0, scope.graphHeight.length-2) : element.height() || 800;
 
 				var canvas = d3.select(element[0])
 					.append('canvas')
@@ -256,7 +256,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				functions: '='
 			},
 
-			templateUrl : 'partials/palladio-graph-view/template.html',
+			templateUrl : 'partials/palladio-graph-component/template.html',
 
 			link : {
 
