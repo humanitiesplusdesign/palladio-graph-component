@@ -486,6 +486,9 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						scope.functions["zoomToData"] = function() {
 							scope.$apply(function(s) { s.zoomToData(); });
 						}
+						scope.functions['getSettings'] = function() {
+							return element.find('.graph-settings')[0]
+						}
 					}
 				},
 
