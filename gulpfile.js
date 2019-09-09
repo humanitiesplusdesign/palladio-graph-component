@@ -11,12 +11,12 @@ var palladioSources = [ "palladio-graph-view.js" ];
 var palladioCSS = [ "palladio-graph-view.css" ];
 var palladioTemplate = [ "template.html" ];
 
-gulp.task('scripts', function () {
+gulp.task('scripts', gulp.series(function (done) {
 	var files = gulp.src(palladioSources)
 		.pipe(concat('jsFiles.js'));
 
 	var templates = gulp.src(palladioTemplate)
-		.pipe(angularTemplates({ module: 'palladio', basePath: 'partials/palladio-graph-component/' }))
+		.pipe(angularTemplates({ module: 'palladio', basePath: 'partials/palladio-graph-component' }))
 		.pipe(rename('templates.tmpl'));
 
 	merge(files, templates)
@@ -25,20 +25,24 @@ gulp.task('scripts', function () {
         .pipe(gulp.dest('./dist/'))
         .pipe(uglify())
         .pipe(rename('palladio-graph-component.min.js'))
-        .pipe(gulp.dest('./dist/'));
-});
+		.pipe(gulp.dest('./dist/'));
+	
+	done();
+}));
 
-gulp.task('css', function () {
+gulp.task('css', gulp.series(function (done) {
 	gulp.src(palladioCSS)
 		.pipe(concat('palladio-graph-component.css'))
 		.pipe(gulp.dest('./dist/'));
-});
+	
+		done();
+}));
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-  gulp.watch(palladioSources, ['scripts']);
-  gulp.watch(palladioCSS, ['css']);
-  gulp.watch(palladioTemplate, ['scripts']);
+  gulp.watch(palladioSources).on('change', gulp.series('scripts'));
+  gulp.watch(palladioCSS).on('change', gulp.series('css'));
+  gulp.watch(palladioTemplate).on('change', gulp.series('scripts'))
 });
 
-gulp.task('default', ['scripts','css','watch']);
+gulp.task('default', gulp.series('scripts','css','watch'));
