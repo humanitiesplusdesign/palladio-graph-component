@@ -1,0 +1,38 @@
+{
+  "name": "palladio-map-component",
+  "description": "Map component for Palladio",
+  "main": [
+    "dist/palladio-map-component.js",
+    "dist/palladio-map-component.css"
+  ],
+  "authors": [
+    "Ethan Jewett <ethan.jewett@coredatra.com>"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "palladio",
+    "visualization"
+  ],
+  "dependencies": {
+    "palladio": ">=1.2.0-beta.10"
+  },
+  "moduleType": [],
+  "homepage": "http://hdlab.stanford.edu/palladio/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "1.0.1",
+  "_release": "1.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.1",
+    "commit": "7f72779acf271a14add87a6b8bb9c230a9b888a5"
+  },
+  "_source": "https://github.com/humanitiesplusdesign/palladio-map-component.git",
+  "_target": "~1.0.0",
+  "_originalSource": "palladio-map-component"
+}

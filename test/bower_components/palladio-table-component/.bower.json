@@ -1,0 +1,38 @@
+{
+  "name": "palladio-table-component",
+  "description": "Table component for Palladio",
+  "main": [
+    "dist/palladio-table-component.js",
+    "dist/palladio-table-component.css"
+  ],
+  "authors": [
+    "Ethan Jewett <ethan.jewett@coredatra.com>"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "palladio",
+    "visualization"
+  ],
+  "dependencies": {
+    "palladio": ">=1.2.0-beta.10"
+  },
+  "moduleType": [],
+  "homepage": "http://hdlab.stanford.edu/palladio/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "1.0.1",
+  "_release": "1.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.1",
+    "commit": "cec79654bd02a5dbe52884569727a01b1c75df22"
+  },
+  "_source": "https://github.com/humanitiesplusdesign/palladio-table-component.git",
+  "_target": "~1.0.0",
+  "_originalSource": "palladio-table-component"
+}

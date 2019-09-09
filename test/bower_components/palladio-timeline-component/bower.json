@@ -1,0 +1,28 @@
+{
+  "name": "palladio-timeline-component",
+  "description": "Timeline component for Palladio",
+  "main": [
+    "dist/palladio-timeline-component.js",
+    "dist/palladio-timeline-component.css"
+  ],
+  "authors": [
+    "Ethan Jewett <ethan.jewett@coredatra.com>"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "palladio",
+    "visualization"
+  ],
+  "dependencies": {
+    "palladio": ">=1.2.0-beta.10"
+  },
+  "moduleType": [],
+  "homepage": "http://hdlab.stanford.edu/palladio/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

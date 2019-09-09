@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8">
+  <title>Palladio Bricks standalone example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Palladio -->
+  <link type="text/css" href="bower_components/palladio/palladio.css" rel="stylesheet" />
+  <link type="text/css" href="bower_components/palladio-facet-component/dist/palladio-facet-component.css"
+    rel="stylesheet" />
+  <link type="text/css" href="../dist/palladio-graph-component.css"
+    rel="stylesheet" />
+  <link type="text/css" href="bower_components/palladio-map-component/dist/palladio-map-component.css"
+    rel="stylesheet" />
+  <link type="text/css" href="css/standalone.css" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <h1 class="col-md-10 col-md-offset-1">Palladio Bricks</h1>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <p>
+          Palladio comes with an API for embedding components directly into web pages so that you can share your
+          Palladio visualizations, incorporate Palladio functionality into other applications, or include interactive
+          visualizations in web-based publications. A simple example based on the default Palladio sample dataset is
+          shown below. Unfortunately the API is not complete and remains a work in progress, but if you have questions
+          or need improvements, get in touch via <a href="https://www.twitter.com/hdstanford">@hdstanford</a> or by
+          filing an issue at the <a href="https://github.com/humanitiesplusdesign/palladio">Palladio Github project</a>
+          or the project for a specific component. Pull requests also welcome!
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <p>
+          This dataset was compiled as a sample for use in Palladio and involves individuals who resided in Monaco. It
+          includes various attributes describing these people, such as their occupation, nationality, date of birth, and
+          date of death.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <p>
+          Various Palladio Bricks components are available:
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <ul>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-map-component">Map, single point and
+              point-to-point display</a> (shown below)</li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-graph-component">Graph, bi-partite</a> (shown
+            below)</li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-facet-component">Faceted filtering</a> (shown
+            below)</li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-table-component">Table</a></li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-timeline-component">Timeline</a></li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-timespan-component">Timespan</a></li>
+          <li><a href="https://github.com/humanitiesplusdesign/palladio-cards-component">Cards</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1" id="facet-filter-here"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1" id="timeline-filter-here"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1" id="graph-view-here"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1" id="map-view-here"></div>
+    </div>
+  </div>
+
+  <script src="bower_components/palladio/palladio.js"></script>
+  <script src="bower_components/palladio-facet-component/dist/palladio-facet-component.min.js"></script>
+  <script src="../dist/palladio-graph-component.js"></script>
+  <script src="bower_components/palladio-map-component/dist/palladio-map-component.min.js"></script>
+  <script>
+    var components = startPalladio(['palladioFacetComponent', 'palladioGraphComponent', 'palladioMapComponent']);
+
+    components.loadData('./sample.json', function () {
+      Promise.all([
+        components.promiseAdd('facet', "#facet-filter-here", {
+          height: "300px",
+          showControls: false,
+          showSettings: false,
+          showAccordion: false,
+          showDropArea: false,
+          dimensions: components.dimensions()
+            .filter(function (d) { return ["Position", "Name", "Gender", "Birthplace", "Group"].indexOf(d.key) !== -1; })
+        }).then(function () {
+          // Do stuff after this brick is added here
+        }),
+
+        components.promiseAdd('map', "#map-view-here", {
+          height: "300px",
+          showSettings: false,
+          scrollWheelZoom: false
+        }).then(function (map) {
+          // Do stuff after this brick is added here
+          map.importState({ "tileSets": [{ "url": null, "mbId": "cesta.hd9ak6ie", "enabled": true, "description": "Land" }], "layers": [{ "aggDescription": "Number of People", "aggregateKey": null, "aggregationType": "COUNT", "color": "#820000", "countBy": "Name", "description": "Birthplace", "enabled": true, "layerType": "data", "mapping": { "sourceCoordinatesKey": "Coordinates", "sourceCoordinatesType": ["Place type"], "sourceCoordinatesDescription": "Birthplace", "destinationCoordinatesKey": null, "destinationCoordinatesType": null, "destinationCoordinatesDescription": null }, "pointSize": true, "showLinks": false, "type": "points" }] });
+          map.zoomLevel(3);
+          map.centerCoordinates([45, 0]);
+          //map.popoverDims(components.dimensions().slice(0,4)) // palladio-map-component 1.2+
+        }),
+
+        components.promiseAdd('graph', "#graph-view-here", {
+          height: "500px",
+          showSettings: false
+        }).then(function (graph) {
+          // Do stuff after this brick is added here
+          graph.source(components.dimensions().filter(function (d) {
+            return d.key === 'Name';
+          })[0]);
+          graph.target(components.dimensions().filter(function (d) {
+            return d.key === 'Place';
+          })[0]);
+          graph.nodeSize(true);
+          setTimeout(graph.zoomToData, 1000);
+        })
+      ]).then(function () {
+        // Do stuff after everything is loaded and configured here.
+      })
+    });
+  </script>
+</body>
+
+</html>
