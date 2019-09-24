@@ -1,4 +1,14 @@
 {
+  "name": "palladio-graph-component",
+  "main": "dist/palladio-graph-component.js",
+  "version": "1.1.0",
+  "description": "Graph component for the Palladio framework.",
+  "homepage": "http://hdlab.stanford.edu/palladio",
+  "repository": "https://github.com/humanitiesplusdesign/palladio-graph-component",
+  "scripts": {
+    "build": "gulp scripts css",
+    "develop": "gulp"
+  },
   "devDependencies": {
     "gulp": "^4",
     "gulp-angular-templates": "0.0.2",
