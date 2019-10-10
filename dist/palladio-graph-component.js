@@ -3,15 +3,17 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 		var compileStringFunction = function (newScope, options) {
 
 			// Options
-			//		showSettings: true
-			//		height: 300px
+			// 		showSettings: true
+			// 		height: 300px
 
 			newScope.showSettings = newScope.showSettings === undefined ? true : newScope.showSettings;
+			newScope.showMetrics = newScope.showMetrics === undefined ? true : newScope.showMetrics;
 			newScope.graphHeight = newScope.height === undefined ? "100%" : newScope.height;
 			newScope.functions = {};
 
 			var compileString = '<div class="with-settings" data-palladio-graph-view-with-settings ';
 			compileString += 'show-settings=showSettings ';
+			compileString += 'show-settings=showMetrics ';
 			compileString += 'graph-height=graphHeight ';
 			compileString += 'functions=functions ';
 			compileString += '></div>';
@@ -40,7 +42,8 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				aggregateKey: '@',
 				readInternalState: '=',
 				setInternalState: '=',
-				getSvg: '='
+				getSvg: '=',
+				metrics: '='
 			},
 
 			link: function (scope, element, attrs) {
@@ -103,9 +106,45 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						.datum(links())
 						.call(chart);
 
+					var allLinks = links().map(function(l) { return [l.data.source,l.data.target]; });
+					scope.metrics = metrics(allLinks);
+
 					if(scope.highlightSource) chart.highlightSource();
 					if(scope.highlightTarget) chart.highlightTarget();
 
+				}
+
+				function metrics(allLinks) {
+					var G = new jsnx.Graph();
+					// console.log(allLinks);
+					G.addEdgesFrom(allLinks);
+
+					var betweenness = jsnx.betweennessCentrality(G)._stringValues;
+	        var degree = G.degree()._stringValues;
+
+	        var density = jsnx.density(G);
+          var averageClustering = jsnx.averageClustering(G);
+          var clustering = jsnx.clustering(G)._stringValues;
+	        var transitivity = jsnx.transitivity(G);
+					var nodecount = G.nodes().length;
+					var edgecount = G.edges().length;
+					var averageDegree = Object.values(G.degree()._stringValues).reduce(function(a,b) { return a + b; }, 0) / nodecount
+
+		      try {
+		        var eigenvector = jsnx.eigenvectorCentrality(G)._stringValues;
+		      } catch(err) {
+		        console.error(err);
+		      }
+
+					var globalMetrics = {
+						"density": density,
+						"averageClustering": averageClustering,
+						"transitivity": transitivity,
+						"nodecount": nodecount,
+						"edgecount": edgecount,
+						"averageDegree": averageDegree
+					};
+					return globalMetrics;
 				}
 
 				function links() {
@@ -167,7 +206,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				scope.$on('zoomOut', function(){
 					chart.zoomOut();
 				});
-				
+
 				scope.$on('zoomToData', function() {
 					chart.zoomToData();
 				})
@@ -252,6 +291,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 		return {
 			scope: {
 				showSettings: '=',
+				showMetrics: '=',
 				graphHeight: '=',
 				functions: '='
 			},
@@ -265,6 +305,10 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					if(scope.showSettings === undefined) {
 						scope.settings = true;
 					} else { scope.settings = scope.showSettings; }
+
+					if(scope.showMetrics === undefined) {
+						scope.metrics = true;
+					} else { scope.metrics = scope.showMetrics; }
 
 					var deregister = [];
 
@@ -390,7 +434,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					scope.zoomOut = function(){
 						scope.$broadcast('zoomOut');
 					};
-					
+
 					scope.zoomToData = function() {
 						scope.$broadcast('zoomToData');
 					};
@@ -504,6 +548,10 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						element.find('.settings').toggleClass('closed');
 					});
 
+					element.find('.metrics-toggle').click(function() {
+						element.find('.metrics').toggleClass('closed');
+					});
+
 					if(scope.graphHeight) {
 						element.height(scope.graphHeight);
 					}
@@ -515,5 +563,5 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 
 angular.module('palladio').run(['$templateCache', function($templateCache) {
     $templateCache.put('partials/palladio-graph-component/template.html',
-        "<div class=\"\">\n\n\t<div data-palladio-graph-view\n\t\tgraph-height=\"graphHeight\"\n\t\tstyle=\"margin-bottom: -55px\"\n\t\tlink-dimension=\"linkDimension\"\n\t\tshow-links=\"showLinks\"\n\t\tshow-labels=\"showLabels\"\n\t\thighlight-source=\"highlightSource\"\n\t\thighlight-target=\"highlightTarget\"\n\t\tread-internal-state=\"readInternalState\"\n\t\tset-internal-state=\"setInternalState\"\n\t\tget-svg=\"getSvg\"\n\t\tnode-size=\"nodeSize\"\n\t\tdata-aggregation-type=\"{{aggregationType}}\"\n\t\tdata-aggregate-key=\"{{aggregateKey}}\"\n\t\tcount-by=\"{{countBy}}\"\n\t\tcount-description=\"{{aggDescription}}\">\n\n\t\t<div class=\"leaflet-top leaflet-left\">\n\t\t\t<div class=\"leaflet-control-zoom-graph leaflet-bar leaflet-control\">\n\t\t\t\t<a class=\"leaflet-control-zoom-in\" ng-click=\"zoomIn()\" title=\"Zoom in\">+</a>\n\t\t\t\t<a class=\"leaflet-control-zoom-out\" ng-click=\"zoomOut()\" title=\"Zoom out\">-</a>\n\t\t\t</div>\n\t\t\t<div class=\"zoom-to-data-control leaflet-bar leaflet-control\">\n\t\t\t\t<a class=\"leaflet-control-to-data\" title=\"Zoom to data\" ng-click=\"zoomToData()\"><i class=\"fa fa-object-group\"></i></a>\n\t\t\t</div>\n\t\t</div>\n\n</div>\n\n<!-- Settings -->\n<div class=\"row graph-settings\" data-ng-show=\"settings\">\n\n    <div class=\"settings col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6\">\n      <div class=\"panel panel-default\">\n\n        <a class=\"settings-toggle\" data-toggle=\"tooltip\" data-original-title=\"Settings\" data-placement=\"bottom\">\n          <i class=\"fa fa-bars\"></i>\n        </a>\n\n        <div class=\"panel-body\">\n\n          <div class=\"row\">\n            <div class=\"col-lg-12\">\n              <label>Settings</label>\n            </div>\n          </div>\n\n          <div class=\"row margin-top\">\n            <div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n              <label class=\"inline\">Source</label>\n            </div>\n            <div class=\"col-lg-8 col-md-8 col-sm-8 col-xs-8 col-condensed\">\n              <span class=\"btn btn-default\" ng-click=\"showSourceModal()\">\n                  {{mapping.sourceDimension.description || \"Choose\"}}\n                  <span class=\"caret\"></span>\n              </span>\n            </div>\n          </div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Highlight</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"highlightSource\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n            <div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n              <label class=\"inline\">Target</label>\n            </div>\n            <div class=\"col-lg-8 col-md-8 col-sm-8 col-xs-8 col-condensed\">\n              <span class=\"btn btn-default\" ng-click=\"showTargetModal()\">\n                  {{mapping.targetDimension.description || \"Choose\"}}\n                  <span class=\"caret\"></span>\n              </span>\n            </div>\n          </div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Highlight</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"highlightTarget\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Show links</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"showLinks\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Size nodes</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"nodeSize\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\" data-ng-show=\"nodeSize\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right \">\n\t\t\t\t\t\t\t<label class=\"inline\">According to</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t<span class=\"btn btn-default\" ng-click=\"showAggModal()\">\n\t\t\t\t\t\t\t\t{{getAggDescription(aggDim) || \"Choose\"}}\n\t\t\t\t\t\t\t\t<span class=\"caret\"></span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right \">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t<a class=\"pull-right\"\n\t\t\t\t\t\t\ttooltip=\"Download graph (svg)\"\n\t\t\t\t\t\t\ttooltip-animation=\"false\"\n\t\t\t\t\t\t\ttooltip-append-to-body=\"true\"\n\t\t\t\t\t\t\tng-click=\"exportSvg(this, 'Palladio Graph.svg')\">\n\t\t\t\t\t\t\t\t<i class=\"fa fa-download margin-right\"></i>Download\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\n\n\n\n        </div>\n\n      </div>\n    </div>\n\n</div>\n\n<div id=\"{{uniqueModalId}}\">\n\t<div id=\"source-modal\" data-modal description=\"Choose source dimension\" dimensions=\"fields\" model=\"mapping.sourceDimension\"></div>\n\t<div id=\"target-modal\" data-modal description=\"Choose target dimension\" dimensions=\"fields\" model=\"mapping.targetDimension\"></div>\n\t<div id=\"agg-modal\" data-modal description=\"Choose aggregation for sizing nodes\" dimensions=\"aggDims\" model=\"aggDim\" description-accessor=\"getAggDescription\"></div>\n</div>\n");
+        "<div class=\"\">\n\n\t<div data-palladio-graph-view\n\t\tgraph-height=\"graphHeight\"\n\t\tstyle=\"margin-bottom: -55px\"\n\t\tlink-dimension=\"linkDimension\"\n\t\tshow-links=\"showLinks\"\n\t\tshow-labels=\"showLabels\"\n\t\thighlight-source=\"highlightSource\"\n\t\thighlight-target=\"highlightTarget\"\n\t\tread-internal-state=\"readInternalState\"\n\t\tset-internal-state=\"setInternalState\"\n\t\tget-svg=\"getSvg\"\n\t\tnode-size=\"nodeSize\"\n\t\tdata-aggregation-type=\"{{aggregationType}}\"\n\t\tdata-aggregate-key=\"{{aggregateKey}}\"\n\t\tcount-by=\"{{countBy}}\"\n\t\tcount-description=\"{{aggDescription}}\"\n\t\tmetrics=\"metrics\">\n\n\t\t<div class=\"leaflet-top leaflet-left\">\n\t\t\t<div class=\"leaflet-control-zoom-graph leaflet-bar leaflet-control\">\n\t\t\t\t<a class=\"leaflet-control-zoom-in\" ng-click=\"zoomIn()\" title=\"Zoom in\">+</a>\n\t\t\t\t<a class=\"leaflet-control-zoom-out\" ng-click=\"zoomOut()\" title=\"Zoom out\">-</a>\n\t\t\t</div>\n\t\t\t<div class=\"zoom-to-data-control leaflet-bar leaflet-control\">\n\t\t\t\t<a class=\"leaflet-control-to-data\" title=\"Zoom to data\" ng-click=\"zoomToData()\"><i class=\"fa fa-object-group\"></i></a>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"row graph-metrics\" data-ng-show=\"metrics\">\n\n\t\t    <div class=\"metrics closed col-lg-12 col-md-12\">\n\t\t      <div class=\"panel panel-default\">\n\n\t\t        <a class=\"metrics-toggle\" data-toggle=\"tooltip\" data-original-title=\"Metrics\" data-placement=\"bottom\">\n\t\t          <i class=\"fa fa-calculator\"></i>\n\t\t        </a>\n\n\t\t        <div class=\"panel-body\">\n\t\t\t\t\t\t\t<div class=\"row\">\n\t\t\t\t\t\t\t\t<div class=\"col-md-4\">\n\t\t\t\t\t\t\t\t\t<div class=\"panel panel-default\">\n\t\t\t\t            <div class=\"panel-heading\">\n\t\t\t\t              <h4 class=\"panel-title\">\n\t\t\t\t                Global metrics\n\t\t\t\t              </h4>\n\t\t\t\t            </div>\n\t\t\t\t            <div class=\"panel-body\" id=\"info-panel\">\n\t\t\t\t\t\t\t\t\t\t\t<div>Number of Nodes: {{ metrics.nodecount }}</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>Number of Edges: {{ metrics.edgecount }}</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>Average Degree: {{ metrics.averageDegree }}</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>Density: {{ metrics.density }}</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>Avg. Clustering Coefficient: {{ metrics.averageClustering }}</div>\n\t\t\t\t\t\t\t\t\t\t\t<div>Transitivity: {{ metrics.transitivity }}</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t          </div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\n\t\t        </div>\n\n\t\t      </div>\n\t\t    </div>\n\n\t\t</div>\n\n\n</div>\n\n<!-- Settings -->\n<div class=\"row graph-settings\" data-ng-show=\"settings\">\n\n    <div class=\"settings closed col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6\">\n      <div class=\"panel panel-default\">\n\n        <a class=\"settings-toggle\" data-toggle=\"tooltip\" data-original-title=\"Settings\" data-placement=\"bottom\">\n          <i class=\"fa fa-bars\"></i>\n        </a>\n\n        <div class=\"panel-body\">\n\n          <div class=\"row\">\n            <div class=\"col-lg-12\">\n              <label>Settings</label>\n            </div>\n          </div>\n\n          <div class=\"row margin-top\">\n            <div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n              <label class=\"inline\">Source</label>\n            </div>\n            <div class=\"col-lg-8 col-md-8 col-sm-8 col-xs-8 col-condensed\">\n              <span class=\"btn btn-default\" ng-click=\"showSourceModal()\">\n                  {{mapping.sourceDimension.description || \"Choose\"}}\n                  <span class=\"caret\"></span>\n              </span>\n            </div>\n          </div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Highlight</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"highlightSource\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n            <div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n              <label class=\"inline\">Target</label>\n            </div>\n            <div class=\"col-lg-8 col-md-8 col-sm-8 col-xs-8 col-condensed\">\n              <span class=\"btn btn-default\" ng-click=\"showTargetModal()\">\n                  {{mapping.targetDimension.description || \"Choose\"}}\n                  <span class=\"caret\"></span>\n              </span>\n            </div>\n          </div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Highlight</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"highlightTarget\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Show links</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"showLinks\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right\">\n\t\t\t\t\t\t\t<label class=\"inline\">Size nodes</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t\t<input type=\"checkbox\" ng-model=\"nodeSize\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\" data-ng-show=\"nodeSize\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right \">\n\t\t\t\t\t\t\t<label class=\"inline\">According to</label>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t<span class=\"btn btn-default\" ng-click=\"showAggModal()\">\n\t\t\t\t\t\t\t\t{{getAggDescription(aggDim) || \"Choose\"}}\n\t\t\t\t\t\t\t\t<span class=\"caret\"></span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<div class=\"row margin-top\">\n\t\t\t\t\t\t<div class=\"col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right \">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"col-lg-8 col-md-8 col-md-8 col-xs-8 col-condensed\">\n\t\t\t\t\t\t\t<a class=\"pull-right\"\n\t\t\t\t\t\t\ttooltip=\"Download graph (svg)\"\n\t\t\t\t\t\t\ttooltip-animation=\"false\"\n\t\t\t\t\t\t\ttooltip-append-to-body=\"true\"\n\t\t\t\t\t\t\tng-click=\"exportSvg(this, 'Palladio Graph.svg')\">\n\t\t\t\t\t\t\t\t<i class=\"fa fa-download margin-right\"></i>Download\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\n\n\n\n\n        </div>\n\n      </div>\n    </div>\n\n</div>\n\n<div id=\"{{uniqueModalId}}\">\n\t<div id=\"source-modal\" data-modal description=\"Choose source dimension\" dimensions=\"fields\" model=\"mapping.sourceDimension\"></div>\n\t<div id=\"target-modal\" data-modal description=\"Choose target dimension\" dimensions=\"fields\" model=\"mapping.targetDimension\"></div>\n\t<div id=\"agg-modal\" data-modal description=\"Choose aggregation for sizing nodes\" dimensions=\"aggDims\" model=\"aggDim\" description-accessor=\"getAggDescription\"></div>\n</div>\n");
 }]);

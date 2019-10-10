@@ -86,6 +86,7 @@
 
   <script src="bower_components/palladio/palladio.js"></script>
   <script src="bower_components/palladio-facet-component/dist/palladio-facet-component.min.js"></script>
+  <script src="../jsnetworkx.js"></script>
   <script src="../dist/palladio-graph-component.js"></script>
   <script src="bower_components/palladio-map-component/dist/palladio-map-component.min.js"></script>
   <script>
@@ -119,8 +120,10 @@
 
         components.promiseAdd('graph', "#graph-view-here", {
           height: "500px",
-          showSettings: false
+          showSettings: true,
+          showMetrics: true
         }).then(function (graph) {
+
           // Do stuff after this brick is added here
           graph.source(components.dimensions().filter(function (d) {
             return d.key === 'Name';

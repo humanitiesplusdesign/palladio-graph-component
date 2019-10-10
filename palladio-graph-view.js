@@ -3,15 +3,17 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 		var compileStringFunction = function (newScope, options) {
 
 			// Options
-			//		showSettings: true
-			//		height: 300px
+			// 		showSettings: true
+			// 		height: 300px
 
 			newScope.showSettings = newScope.showSettings === undefined ? true : newScope.showSettings;
+			newScope.showMetrics = newScope.showMetrics === undefined ? true : newScope.showMetrics;
 			newScope.graphHeight = newScope.height === undefined ? "100%" : newScope.height;
 			newScope.functions = {};
 
 			var compileString = '<div class="with-settings" data-palladio-graph-view-with-settings ';
 			compileString += 'show-settings=showSettings ';
+			compileString += 'show-settings=showMetrics ';
 			compileString += 'graph-height=graphHeight ';
 			compileString += 'functions=functions ';
 			compileString += '></div>';
@@ -40,7 +42,8 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				aggregateKey: '@',
 				readInternalState: '=',
 				setInternalState: '=',
-				getSvg: '='
+				getSvg: '=',
+				metrics: '='
 			},
 
 			link: function (scope, element, attrs) {
@@ -103,9 +106,45 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						.datum(links())
 						.call(chart);
 
+					var allLinks = links().map(function(l) { return [l.data.source,l.data.target]; });
+					scope.metrics = metrics(allLinks);
+
 					if(scope.highlightSource) chart.highlightSource();
 					if(scope.highlightTarget) chart.highlightTarget();
 
+				}
+
+				function metrics(allLinks) {
+					var G = new jsnx.Graph();
+					// console.log(allLinks);
+					G.addEdgesFrom(allLinks);
+
+					var betweenness = jsnx.betweennessCentrality(G)._stringValues;
+	        var degree = G.degree()._stringValues;
+
+	        var density = jsnx.density(G);
+          var averageClustering = jsnx.averageClustering(G);
+          var clustering = jsnx.clustering(G)._stringValues;
+	        var transitivity = jsnx.transitivity(G);
+					var nodecount = G.nodes().length;
+					var edgecount = G.edges().length;
+					var averageDegree = Object.values(G.degree()._stringValues).reduce(function(a,b) { return a + b; }, 0) / nodecount
+
+		      try {
+		        var eigenvector = jsnx.eigenvectorCentrality(G)._stringValues;
+		      } catch(err) {
+		        console.error(err);
+		      }
+
+					var globalMetrics = {
+						"density": density,
+						"averageClustering": averageClustering,
+						"transitivity": transitivity,
+						"nodecount": nodecount,
+						"edgecount": edgecount,
+						"averageDegree": averageDegree
+					};
+					return globalMetrics;
 				}
 
 				function links() {
@@ -167,7 +206,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				scope.$on('zoomOut', function(){
 					chart.zoomOut();
 				});
-				
+
 				scope.$on('zoomToData', function() {
 					chart.zoomToData();
 				})
@@ -252,6 +291,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 		return {
 			scope: {
 				showSettings: '=',
+				showMetrics: '=',
 				graphHeight: '=',
 				functions: '='
 			},
@@ -265,6 +305,10 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					if(scope.showSettings === undefined) {
 						scope.settings = true;
 					} else { scope.settings = scope.showSettings; }
+
+					if(scope.showMetrics === undefined) {
+						scope.metrics = true;
+					} else { scope.metrics = scope.showMetrics; }
 
 					var deregister = [];
 
@@ -390,7 +434,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					scope.zoomOut = function(){
 						scope.$broadcast('zoomOut');
 					};
-					
+
 					scope.zoomToData = function() {
 						scope.$broadcast('zoomToData');
 					};
@@ -502,6 +546,10 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				post: function(scope, element, attrs) {
 					element.find('.settings-toggle').click(function() {
 						element.find('.settings').toggleClass('closed');
+					});
+
+					element.find('.metrics-toggle').click(function() {
+						element.find('.metrics').toggleClass('closed');
 					});
 
 					if(scope.graphHeight) {

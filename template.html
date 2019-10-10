@@ -15,7 +15,8 @@
 		data-aggregation-type="{{aggregationType}}"
 		data-aggregate-key="{{aggregateKey}}"
 		count-by="{{countBy}}"
-		count-description="{{aggDescription}}">
+		count-description="{{aggDescription}}"
+		metrics="metrics">
 
 		<div class="leaflet-top leaflet-left">
 			<div class="leaflet-control-zoom-graph leaflet-bar leaflet-control">
@@ -26,13 +27,50 @@
 				<a class="leaflet-control-to-data" title="Zoom to data" ng-click="zoomToData()"><i class="fa fa-object-group"></i></a>
 			</div>
 		</div>
+		<div class="row graph-metrics" data-ng-show="metrics">
+
+		    <div class="metrics closed col-lg-12 col-md-12">
+		      <div class="panel panel-default">
+
+		        <a class="metrics-toggle" data-toggle="tooltip" data-original-title="Metrics" data-placement="bottom">
+		          <i class="fa fa-calculator"></i>
+		        </a>
+
+		        <div class="panel-body">
+							<div class="row">
+								<div class="col-md-4">
+									<div class="panel panel-default">
+				            <div class="panel-heading">
+				              <h4 class="panel-title">
+				                Global metrics
+				              </h4>
+				            </div>
+				            <div class="panel-body" id="info-panel">
+											<div>Number of Nodes: {{ metrics.nodecount }}</div>
+											<div>Number of Edges: {{ metrics.edgecount }}</div>
+											<div>Average Degree: {{ metrics.averageDegree }}</div>
+											<div>Density: {{ metrics.density }}</div>
+											<div>Avg. Clustering Coefficient: {{ metrics.averageClustering }}</div>
+											<div>Transitivity: {{ metrics.transitivity }}</div>
+										</div>
+				          </div>
+								</div>
+							</div>
+
+		        </div>
+
+		      </div>
+		    </div>
+
+		</div>
+
 
 </div>
 
 <!-- Settings -->
 <div class="row graph-settings" data-ng-show="settings">
 
-    <div class="settings col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6">
+    <div class="settings closed col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6">
       <div class="panel panel-default">
 
         <a class="settings-toggle" data-toggle="tooltip" data-original-title="Settings" data-placement="bottom">
