@@ -15,7 +15,9 @@
 		data-aggregation-type="{{aggregationType}}"
 		data-aggregate-key="{{aggregateKey}}"
 		count-by="{{countBy}}"
-		count-description="{{aggDescription}}">
+		count-description="{{aggDescription}}"
+		metrics="metrics"
+		unimodal="unimodal">
 
 		<div class="leaflet-top leaflet-left">
 			<div class="leaflet-control-zoom-graph leaflet-bar leaflet-control">
@@ -26,13 +28,114 @@
 				<a class="leaflet-control-to-data" title="Zoom to data" ng-click="zoomToData()"><i class="fa fa-object-group"></i></a>
 			</div>
 		</div>
+		<div class="row graph-metrics" data-ng-show="displayMetrics">
+
+		    <div class="metrics closed col-lg-12 col-md-12">
+		      <div class="panel panel-default">
+
+		        <a class="metrics-toggle" data-toggle="tooltip" data-original-title="Metrics" data-placement="bottom">
+		          <i class="fa fa-calculator"></i>
+		        </a>
+
+		        <div class="panel-body">
+							<div class="alert alert-danger" ng-show="!unimodal">
+								<div><strong>WARNING!</strong> The Metrics section only works for <em>unipartite</em> networks (ones that only allow links among a single type of object), but it seems you may have created a <em>bipartite</em> network. This <em>could</em> still be a unipartite network, but Palladio cannot verify it as such. If this is not a unipartite network, the results shown in this section are <em><strong>not valid</strong></em> and should be disregarded.</div><br>
+								<div>To verify you have a unipartite network, link your data fields to the same "Extension" table in the Data section. For more information on bipartite/bimodal networks, see <a href="http://www.scottbot.net/HIAL/index.html@p=41158.html" class="alert-link">this blog post</a>.</div>
+							</div>
+							<div class="row">
+								<div class="col-md-8 metric-table">
+										<form>
+									    <div class="form-group">
+									      <div class="input-group">
+									        <div class="input-group-addon"><i class="fa fa-search"></i></div>
+									        <input type="text" class="form-control" placeholder="Search Nodes" ng-model="searchNodes">
+									      </div>
+									    </div>
+									  </form>
+				            <table class="table table-hover table-bordered table-striped">
+				              <thead>
+				                <tr>
+				                  <th>
+														<a href="#" ng-click="sortType = 'name'; sortReverse = !sortReverse">
+									            Node ID
+									            <span ng-show="sortType == 'name' && !sortReverse" class="fa fa-caret-down"></span>
+									            <span ng-show="sortType == 'name' && sortReverse" class="fa fa-caret-up"></span>
+									          </a>
+													</th>
+				                  <th>
+														<a href="#" ng-click="sortType = 'degree'; sortReverse = !sortReverse">
+									            Degree
+									            <span ng-show="sortType == 'degree' && sortReverse" class="fa fa-caret-down"></span>
+									            <span ng-show="sortType == 'degree' && !sortReverse" class="fa fa-caret-up"></span>
+									          </a>
+													</th>
+				                  <th>
+														<a href="#" ng-click="sortType = 'betweenness'; sortReverse = !sortReverse">
+									            Betweenness Centrality
+									            <span ng-show="sortType == 'betweenness' && sortReverse" class="fa fa-caret-down"></span>
+									            <span ng-show="sortType == 'betweenness' && !sortReverse" class="fa fa-caret-up"></span>
+									          </a>
+													</th>
+				                  <th>
+														<a href="#" ng-click="sortType = 'eigenvector'; sortReverse = !sortReverse">
+															Eigenvector Centrality
+															<span ng-show="sortType == 'eigenvector' && sortReverse" class="fa fa-caret-down"></span>
+															<span ng-show="sortType == 'eigenvector' && !sortReverse" class="fa fa-caret-up"></span>
+														</a>
+													</th>
+				                  <th>
+														<a href="#" ng-click="sortType = 'clustering'; sortReverse = !sortReverse">
+									            Clustering Coefficient
+									            <span ng-show="sortType == 'clustering' && sortReverse" class="fa fa-caret-down"></span>
+									            <span ng-show="sortType == 'clustering' && !sortReverse" class="fa fa-caret-up"></span>
+									          </a>
+													</th>
+				                </tr>
+				              </thead>
+				              <tbody>
+												<tr ng-repeat="node in metrics.nodes | orderBy:sortType:sortReverse | filter:searchNodes">
+													<td>{{ node.name }}</td>
+													<td>{{ node.degree }}</td>
+													<td>{{ node.betweenness }}</td>
+													<td>{{ node.eigenvector }}</td>
+													<td>{{ node.clustering }}</td>
+												</tr>
+				              </tbody>
+				            </table>
+				        </div>
+								<div class="col-md-4">
+									<div class="panel panel-default">
+				            <div class="panel-heading">
+				              <h4 class="panel-title">
+				                Global metrics
+				              </h4>
+				            </div>
+				            <div class="panel-body" id="info-panel">
+											<div>Number of Nodes: {{ metrics.nodecount }}</div>
+											<div>Number of Edges: {{ metrics.edgecount }}</div>
+											<div>Average Degree: {{ metrics.averageDegree }}</div>
+											<div>Density: {{ metrics.density }}</div>
+											<div>Avg. Clustering Coefficient: {{ metrics.averageClustering }}</div>
+											<div>Transitivity: {{ metrics.transitivity }}</div>
+										</div>
+				          </div>
+								</div>
+							</div>
+
+		        </div>
+
+		      </div>
+		    </div>
+
+		</div>
+
 
 </div>
 
 <!-- Settings -->
 <div class="row graph-settings" data-ng-show="settings">
 
-    <div class="settings col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6">
+    <div class="settings closed col-lg-4 col-lg-offset-8 col-md-6 col-md-offset-6">
       <div class="panel panel-default">
 
         <a class="settings-toggle" data-toggle="tooltip" data-original-title="Settings" data-placement="bottom">

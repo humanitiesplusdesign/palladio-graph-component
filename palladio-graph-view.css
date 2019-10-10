@@ -80,3 +80,59 @@
 [data-palladio-graph-view] .link.hidden {
     display: none;
 }
+
+[data-palladio-graph-view] .metrics {
+  position: fixed;
+  top: 140px;
+  right: 0px;
+  left: 0px;
+	z-index: 1100;
+}
+
+[data-palladio-graph-view] .metrics.closed {
+  left: inherit;
+  width: 70px;
+}
+
+[data-palladio-graph-view] .metrics.closed .panel {
+  height: 40px;
+}
+
+[data-palladio-graph-view] .metrics.closed .panel > * {
+  display: none;
+}
+
+[data-palladio-graph-view] .metrics .panel {
+  border: none;
+  box-shadow: 0px 1px 2px rgba(0,0,0,.1);
+  background: rgba(255,255,255,.95);
+}
+
+[data-palladio-graph-view] .metric-table {
+	overflow-y: scroll;
+	height: 500px;
+}
+
+[data-palladio-graph-view] .metrics .panel-body {
+  margin-right: 40px;
+  padding-right: 0px;
+}
+
+[data-palladio-graph-view] .metrics .panel-heading {
+  background-color: #fafafa;
+  border: none;
+}
+
+[data-palladio-graph-view] th {
+	min-width: 100px;
+}
+
+
+[data-palladio-graph-view] .metrics-toggle {
+  display: block !important;
+  position: absolute;
+  top: 10px;
+  right: 28px;
+  font-size: 16px;
+  color: #565a5c;
+}
