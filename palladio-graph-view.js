@@ -66,6 +66,10 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					return chart.getSvg();
 				};
 
+				scope.sortType = "name";
+				scope.sortReverse = false;
+				scope.searchNodes = "";
+
 				var search = "";
 
 				var width = element.width() || 1000,
@@ -116,7 +120,6 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 
 				function metrics(allLinks) {
 					var G = new jsnx.Graph();
-					// console.log(allLinks);
 					G.addEdgesFrom(allLinks);
 
 					var betweenness = jsnx.betweennessCentrality(G)._stringValues;
@@ -136,13 +139,27 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 		        console.error(err);
 		      }
 
+					var allNodeMetrics = [];
+					G.nodes().forEach(function(n) {
+						var nodeMetrics = {};
+						nodeMetrics["name"] = n;
+						nodeMetrics["degree"] = degree[n];
+						nodeMetrics["betweenness"] = betweenness[n].toFixed(10);
+						if (eigenvector) {
+							nodeMetrics["eigenvector"] = eigenvector[n].toFixed(10);
+						}
+						nodeMetrics["clustering"] = clustering[n].toFixed(10);
+						allNodeMetrics.push(nodeMetrics);
+					})
+
 					var globalMetrics = {
-						"density": density,
-						"averageClustering": averageClustering,
-						"transitivity": transitivity,
+						"density": density.toFixed(8),
+						"averageClustering": averageClustering.toFixed(8),
+						"transitivity": transitivity.toFixed(8),
 						"nodecount": nodecount,
 						"edgecount": edgecount,
-						"averageDegree": averageDegree
+						"averageDegree": averageDegree.toFixed(8),
+						"nodes": allNodeMetrics
 					};
 					return globalMetrics;
 				}
