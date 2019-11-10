@@ -16,6 +16,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 			compileString += 'show-settings=showMetrics ';
 			compileString += 'graph-height=graphHeight ';
 			compileString += 'functions=functions ';
+			compileString += 'unimodal=unimodal ';
 			compileString += '></div>';
 
 			return compileString;
@@ -43,7 +44,8 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 				readInternalState: '=',
 				setInternalState: '=',
 				getSvg: '=',
-				metrics: '='
+				metrics: '=',
+				unimodal: '='
 			},
 
 			link: function (scope, element, attrs) {
@@ -303,14 +305,15 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 	}])
 
 	// Palladio Timechart View with Settings
-	.directive('palladioGraphViewWithSettings', ['exportService', 'palladioService', 'dataService', function (exportService, palladioService, dataService) {
+	.directive('palladioGraphViewWithSettings', ['exportService', 'palladioService', 'dataService', '$timeout', function (exportService, palladioService, dataService, $timeout) {
 
 		return {
 			scope: {
 				showSettings: '=',
 				showMetrics: '=',
 				graphHeight: '=',
-				functions: '='
+				functions: '=',
+				unimodal: '='
 			},
 
 			templateUrl : 'partials/palladio-graph-component/template.html',
@@ -421,16 +424,14 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						var dataLinks = dataService.getLinks();
 						var sourceKey = scope.mapping.sourceDimension.key;
 						var targetKey = scope.mapping.targetDimension.key;
-						// console.log(scope.mapping.sourceDimension);
-						// console.log(dataLinks);
 						var dataKeys = {}
 						dataLinks.forEach(function(d) {
 						 dataKeys[d.source.field.key] = d.lookup.field.key;
 					 });
 					 if (sourceKey in dataKeys && targetKey in dataKeys && dataKeys[sourceKey] === dataKeys[targetKey]) {
-						 scope.unimodal = true;
+						scope.unimodal = true;
 					 } else {
-						 scope.unimodal = false;
+						scope.unimodal = false;
 					 }
 					}
 

@@ -16,7 +16,8 @@
 		data-aggregate-key="{{aggregateKey}}"
 		count-by="{{countBy}}"
 		count-description="{{aggDescription}}"
-		metrics="metrics">
+		metrics="metrics"
+		unimodal="unimodal">
 
 		<div class="leaflet-top leaflet-left">
 			<div class="leaflet-control-zoom-graph leaflet-bar leaflet-control">
@@ -37,6 +38,10 @@
 		        </a>
 
 		        <div class="panel-body">
+							<div class="alert alert-danger" ng-show="!unimodal">
+								<div><strong>WARNING!</strong> The Metrics section only works for <em>unipartite</em> networks (ones that only allow links among a single type of object), but it seems you may have created a <em>bipartite</em> network. This <em>could</em> still be a unipartite network, but Palladio cannot verify it as such. If this is not a unipartite network, the results shown in this section are <em><strong>not valid</strong></em> and should be disregarded.</div><br>
+								<div>To verify you have a unipartite network, link your data fields to the same "Extension" table in the Data section. For more information on bipartite/bimodal networks, see <a href="http://www.scottbot.net/HIAL/index.html@p=41158.html" class="alert-link">this blog post</a>.</div>
+							</div>
 							<div class="row">
 								<div class="col-md-8 metric-table">
 										<form>
