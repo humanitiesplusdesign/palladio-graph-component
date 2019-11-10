@@ -305,7 +305,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 	}])
 
 	// Palladio Timechart View with Settings
-	.directive('palladioGraphViewWithSettings', ['exportService', 'palladioService', 'dataService', '$timeout', function (exportService, palladioService, dataService, $timeout) {
+	.directive('palladioGraphViewWithSettings', ['exportService', 'palladioService', 'dataService', function (exportService, palladioService, dataService) {
 
 		return {
 			scope: {
