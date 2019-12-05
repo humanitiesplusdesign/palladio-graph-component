@@ -4,10 +4,11 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 
 			// Options
 			// 		showSettings: true
+			//		showMetrics: false
 			// 		height: 300px
 
 			newScope.showSettings = newScope.showSettings === undefined ? true : newScope.showSettings;
-			newScope.showMetrics = newScope.showMetrics === undefined ? true : newScope.showMetrics;
+			newScope.showMetrics = newScope.showMetrics === undefined ? false : newScope.showMetrics;
 			newScope.graphHeight = newScope.height === undefined ? "100%" : newScope.height;
 			newScope.functions = {};
 
@@ -325,10 +326,9 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					if(scope.showSettings === undefined) {
 						scope.settings = true;
 					} else { scope.settings = scope.showSettings; }
-
 					if(scope.showMetrics === undefined) {
-						scope.metrics = true;
-					} else { scope.metrics = scope.showMetrics; }
+						scope.displayMetrics = true;
+					} else { scope.displayMetrics = scope.showMetrics; }
 
 					var deregister = [];
 
