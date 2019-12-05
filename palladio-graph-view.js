@@ -14,7 +14,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 
 			var compileString = '<div class="with-settings" data-palladio-graph-view-with-settings ';
 			compileString += 'show-settings=showSettings ';
-			compileString += 'show-settings=showMetrics ';
+			compileString += 'show-metrics=showMetrics ';
 			compileString += 'graph-height=graphHeight ';
 			compileString += 'functions=functions ';
 			compileString += 'unimodal=unimodal ';
@@ -327,7 +327,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 						scope.settings = true;
 					} else { scope.settings = scope.showSettings; }
 					if(scope.showMetrics === undefined) {
-						scope.displayMetrics = true;
+						scope.displayMetrics = false;
 					} else { scope.displayMetrics = scope.showMetrics; }
 
 					var deregister = [];
