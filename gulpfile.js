@@ -7,7 +7,7 @@ var order = require('gulp-order');
 var rename = require('gulp-rename');
 var angularTemplates = require('gulp-angular-templates');
 
-var palladioSources = [ "palladio-graph-view.js" ];
+var palladioSources = [ "palladio-graph-view.js", "jsnetworkx.js" ];
 var palladioCSS = [ "palladio-graph-view.css" ];
 var palladioTemplate = [ "template.html" ];
 
