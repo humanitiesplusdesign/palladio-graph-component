@@ -8,7 +8,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 			// 		height: 300px
 
 			newScope.showSettings = newScope.showSettings === undefined ? true : newScope.showSettings;
-			newScope.showMetrics = newScope.showMetrics === undefined ? false : newScope.showMetrics;
+			newScope.showMetrics = newScope.showMetrics === undefined ? true : newScope.showMetrics;
 			newScope.graphHeight = newScope.height === undefined ? "100%" : newScope.height;
 			newScope.functions = {};
 
@@ -421,6 +421,8 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 							scope.linkDimension = scope.xfilter.dimension(function(d) { return [ sourceAccessor(d), targetAccessor(d) ]; });
 							scope.linkDimension.accessor = function(d) { return [ sourceAccessor(d), targetAccessor(d) ]; };
 						}
+						scope.unimodal = false;
+						if (scope.mapping.sourceDimension && scope.mapping.targetDimension) {
 						var dataLinks = dataService.getLinks();
 						var sourceKey = scope.mapping.sourceDimension.key;
 						var targetKey = scope.mapping.targetDimension.key;
@@ -430,9 +432,8 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 					 });
 					 if (sourceKey in dataKeys && targetKey in dataKeys && dataKeys[sourceKey] === dataKeys[targetKey]) {
 						scope.unimodal = true;
-					 } else {
-						scope.unimodal = false;
 					 }
+				  }
 					}
 
 					// Clean up after ourselves. Remove dimensions that we have created. If we
