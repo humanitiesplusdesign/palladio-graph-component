@@ -8,7 +8,7 @@ angular.module('palladioGraphComponent', ['palladio.services', 'palladio'])
 			// 		height: 300px
 
 			newScope.showSettings = newScope.showSettings === undefined ? true : newScope.showSettings;
-			newScope.showMetrics = newScope.showMetrics === undefined ? false : newScope.showMetrics;
+			newScope.showMetrics = newScope.showMetrics === undefined ? true : newScope.showMetrics;
 			newScope.graphHeight = newScope.height === undefined ? "100%" : newScope.height;
 			newScope.functions = {};
 
