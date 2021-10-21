@@ -7,7 +7,7 @@ var order = require('gulp-order');
 var rename = require('gulp-rename');
 var angularTemplates = require('gulp-angular-templates');
 
-var palladioSources = [ "palladio-graph-view.js", "jsnetworkx.js" ];
+var palladioSources = [ "palladio-graph-view.js", "vendor/jsnetworkx/jsnetworkx.js" ];
 var palladioCSS = [ "palladio-graph-view.css" ];
 var palladioTemplate = [ "template.html" ];
 
@@ -26,7 +26,7 @@ gulp.task('scripts', gulp.series(function (done) {
         .pipe(uglify())
         .pipe(rename('palladio-graph-component.min.js'))
 		.pipe(gulp.dest('./dist/'));
-	
+
 	done();
 }));
 
@@ -34,7 +34,7 @@ gulp.task('css', gulp.series(function (done) {
 	gulp.src(palladioCSS)
 		.pipe(concat('palladio-graph-component.css'))
 		.pipe(gulp.dest('./dist/'));
-	
+
 		done();
 }));
 
